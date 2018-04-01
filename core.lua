@@ -81,6 +81,11 @@ cloaking.cloak = function(player)
     if irc then
         irc.say("*** " .. victim .. " left the game")
     end
+    
+    if areas and areas.hud and areas.hud[victim] then
+        p:hud_change(areas.hud[victim].areasId, "text", "Cloaked")
+        areas.hud[victim].oldAreas = "" 
+    end
 end
 
 cloaking.uncloak = function(player)
