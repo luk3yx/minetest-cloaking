@@ -121,6 +121,7 @@ minetest.register_on_leaveplayer(cloaking.auto_uncloak)
 if minetest.chatcommands['me'] then
     local f = minetest.chatcommands['me'].func
     minetest.override_chatcommand('me', {
+        allow_while_cloaked = true,
         func = function(name, params)
             cloaking.auto_uncloak(name)
             return f(name, params)
