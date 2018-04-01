@@ -53,6 +53,12 @@ cloaking.uncloak_player = function(player)
     end
 end
 
+minetest.register_on_chat_message(function(name, message)
+    if cloaked_players[name] then
+        cloaking.uncloak_player(name)
+    end
+end)
+
 minetest.register_chatcommand("cloak", {
     params = "[victim]",
     description = "Cloak a player so they are not visible.",
@@ -79,10 +85,11 @@ minetest.register_chatcommand("cloak", {
 minetest.register_chatcommand("uncloak", {
     params = "[victim]",
     description = "Uncloak a player so they are visible.",
-    privs = {privs = true}, 
     func = function(player, victim)
         if not victim or victim == '' then
             victim = player
+        elseif not minetest.get_player_privs(player).privs then
+            return false, "You don't have permission to uncloak someone else."
         end
         
         p = minetest.get_player_by_name(victim)
