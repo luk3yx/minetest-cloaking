@@ -6,3 +6,7 @@
 local path = minetest.get_modpath('cloaking')
 dofile(path .. '/core.lua')
 dofile(path .. '/chatcommands.lua')
+
+if chat3 then
+    dofile(path .. '/chat3.lua')
+end
