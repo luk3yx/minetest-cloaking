@@ -13,6 +13,7 @@ cloaking.get_player_by_name = minetest.get_player_by_name
 
 local cloaked_players = {}
 
+-- Override built-in functions
 minetest.get_connected_players = function()
     local a = {}
     for _, player in ipairs(cloaking.get_connected_players()) do
@@ -31,6 +32,23 @@ minetest.get_player_by_name = function(player)
     end
 end
 
+-- Override chatcommands
+minetest.register_chatcommand("status", {
+    description = "Print server status",
+    func = function(name, param)
+        local status = minetest.get_server_status()
+        status = status:sub(1, status:find('{', 1, true))
+        local players = {}
+        for _, player in ipairs(minetest.get_connected_players()) do
+            table.insert(players, player:get_player_name())
+        end
+        players = table.concat(players, ', ')
+        status = status .. players .. '}'
+        return true, status
+    end
+})
+
+-- The cloak and uncloak functions
 cloaking.cloak_player = function(player)
     if type(player) == "string" then
         player = cloaking.get_player_by_name(player)
@@ -65,12 +83,14 @@ cloaking.uncloak_player = function(player)
     end
 end
 
+-- Auto-uncloak on chat message
 minetest.register_on_chat_message(function(name, message)
     if cloaked_players[name] then
         cloaking.uncloak_player(name)
     end
 end)
 
+-- The /cloak and /uncloak commands
 minetest.register_chatcommand("cloak", {
     params = "[victim]",
     description = "Cloak a player so they are not visible.",
