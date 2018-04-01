@@ -9,7 +9,8 @@ cloaking = {}
 -- Expose the real get_connected_players and get_player_by_name for mods that
 --   can use them.
 cloaking.get_connected_players = minetest.get_connected_players
-cloaking.get_player_by_name = minetest.get_player_by_name
+cloaking.get_player_by_name    = minetest.get_player_by_name
+cloaking.get_server_status     = minetest.get_server_status
 
 local cloaked_players = {}
 
@@ -32,21 +33,17 @@ minetest.get_player_by_name = function(player)
     end
 end
 
--- Override chatcommands
-minetest.register_chatcommand("status", {
-    description = "Print server status",
-    func = function(name, param)
-        local status = minetest.get_server_status()
-        status = status:sub(1, status:find('{', 1, true))
-        local players = {}
-        for _, player in ipairs(minetest.get_connected_players()) do
-            table.insert(players, player:get_player_name())
-        end
-        players = table.concat(players, ', ')
-        status = status .. players .. '}'
-        return true, status
+minetest.get_server_status = function()
+    local status = cloaking.get_server_status()
+    status = status:sub(1, status:find('{', 1, true))
+    local players = {}
+    for _, player in ipairs(minetest.get_connected_players()) do
+        table.insert(players, player:get_player_name())
     end
-})
+    players = table.concat(players, ', ')
+    status = status .. players .. '}'
+    return status
+end
 
 -- The cloak and uncloak functions
 cloaking.cloak = function(player)
