@@ -13,6 +13,7 @@ cloaking.get_player_by_name    = minetest.get_player_by_name
 cloaking.get_server_status     = minetest.get_server_status
 
 local cloaked_players = {}
+local chatcommands_modified = false
 
 -- Override built-in functions
 minetest.get_connected_players = function()
@@ -45,8 +46,27 @@ minetest.get_server_status = function()
     return status
 end
 
+-- Override every chatcommand
+local override_chatcommands = function()
+    for name, def in pairs(minetest.chatcommands) do
+        if not def.allow_while_cloaked then
+            local real_cmd = def.func
+            minetest.chatcommands[name].func = function(name, param)
+                if cloaked_players[name] then
+                    return false, "You may not execute chatcommands while " ..
+                        "cloaked. Please use /uncloak if you want to "      ..
+                        "execute a chatcommand."
+                else
+                    return real_cmd(name, param)
+                end
+            end
+        end
+    end
+end
+
 -- The cloak and uncloak functions
 cloaking.cloak = function(player)
+    if not chatcommands_modified then override_chatcommands() end
     if type(player) == "string" then
         player = cloaking.get_player_by_name(player)
     end

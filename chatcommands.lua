@@ -7,7 +7,8 @@
 minetest.register_chatcommand("cloak", {
     params = "[victim]",
     description = "Cloak a player so they are not visible.",
-    privs = {privs = true}, 
+    allow_while_cloaked = true,
+    privs = {privs = true},
     func = function(player, victim)
         if not victim or victim == '' then
             victim = player
@@ -30,6 +31,7 @@ minetest.register_chatcommand("cloak", {
 minetest.register_chatcommand("uncloak", {
     params = "[victim]",
     description = "Uncloak a player so they are visible.",
+    allow_while_cloaked = true,
     func = function(player, victim)
         if not victim or victim == '' then
             victim = player
