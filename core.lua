@@ -84,7 +84,7 @@ cloaking.uncloak = function(player)
 end
 
 -- Auto-uncloaking
-local auto_uncloak = function(player)
+cloaking.auto_uncloak = function(player)
     if type(player) ~= "string" then
         player = player:get_player_name()
     end
@@ -93,8 +93,19 @@ local auto_uncloak = function(player)
     end
 end
 
-minetest.register_on_chat_message(auto_uncloak)
-minetest.register_on_leaveplayer(auto_uncloak)
+minetest.register_on_chat_message(cloaking.auto_uncloak)
+minetest.register_on_leaveplayer(cloaking.auto_uncloak)
+
+if minetest.chatcommands['me'] then
+    local f = minetest.chatcommands['me'].func
+    minetest.override_chatcommand('me', {
+        func = function(name, params)
+            cloaking.auto_uncloak(name)
+            return f(name, params)
+        end
+    })
+end
+
 
 -- API functions
 cloaking.get_cloaked_players = function()
