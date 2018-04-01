@@ -6,12 +6,16 @@
 
 cloaking = {}
 
-local real_get_players = minetest.get_connected_players
+-- Expose the real get_connected_players and get_player_by_name for mods that
+--   can use them.
+cloaking.get_connected_players = minetest.get_connected_players
+cloaking.get_player_by_name = minetest.get_player_by_name
+
 local cloaked_players = {}
 
 minetest.get_connected_players = function()
     local a = {}
-    for _,player in ipairs(real_get_players()) do
+    for _, player in ipairs(cloaking.get_connected_players()) do
         if not cloaked_players[player:get_player_name()] then
             table.insert(a, player)
         end
@@ -19,9 +23,17 @@ minetest.get_connected_players = function()
     return a
 end
 
+minetest.get_player_by_name = function(player)
+    if cloaked_players[player] then
+        return nil
+    else
+        return cloaking.get_player_by_name(player)
+    end
+end
+
 cloaking.cloak_player = function(player)
     if type(player) == "string" then
-        player = minetest.get_player_by_name(player)
+        player = cloaking.get_player_by_name(player)
     end
     victim = player:get_player_name()
     
@@ -38,7 +50,7 @@ end
 
 cloaking.uncloak_player = function(player)
     if type(player) == "string" then
-        player = minetest.get_player_by_name(player)
+        player = cloaking.get_player_by_name(player)
     end
     victim = player:get_player_name()
     
@@ -68,7 +80,7 @@ minetest.register_chatcommand("cloak", {
             victim = player
         end
         
-        p = minetest.get_player_by_name(victim)
+        p = cloaking.get_player_by_name(victim)
         if not p then
             return false, "Could not find a player with the name '" .. victim .. "'!"
         end
@@ -92,7 +104,7 @@ minetest.register_chatcommand("uncloak", {
             return false, "You don't have permission to uncloak someone else."
         end
         
-        p = minetest.get_player_by_name(victim)
+        p = cloaking.get_player_by_name(victim)
         if not p then
             return false, "Could not find a player with the name '" .. victim .. "'!"
         end
