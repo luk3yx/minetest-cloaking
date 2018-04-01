@@ -46,21 +46,39 @@ minetest.get_server_status = function()
     return status
 end
 
--- Override every chatcommand
+-- Don't allow chat or chatcommands in all commands that don't have the
+--   allow_while_cloaked parameter set.
 local override_chatcommands = function()
     for name, def in pairs(minetest.chatcommands) do
         if not def.allow_while_cloaked then
             local real_cmd = def.func
             minetest.chatcommands[name].func = function(name, param)
                 if cloaked_players[name] then
-                    return false, "You may not execute chatcommands while " ..
-                        "cloaked. Please use /uncloak if you want to "      ..
-                        "execute a chatcommand."
+                    return false, "You may not execute most chatcommands " ..
+                        "while cloaked. Please use /uncloak if you want "  ..
+                        "to execute a chatcommand."
                 else
                     return real_cmd(name, param)
                 end
             end
         end
+    end
+end
+
+minetest.register_on_chat_message(function(name)
+    if cloaked_players[name] then
+        minetest.chat_send_player(name, "You cannot use chat while cloaked." ..
+            " Please use /uncloak if you want to use chat.")
+        return true
+    end
+end)
+
+-- Allow some commands through the above restriction.
+for _, cmd in ipairs({'status', 'kick', 'ban', 'xban', 'xtempban', 'help'}) do
+    if minetest.chatcommands[cmd] then
+        minetest.override_chatcommand(cmd, {
+            allow_while_cloaked = true
+        })
     end
 end
 
@@ -115,19 +133,7 @@ cloaking.auto_uncloak = function(player)
     end
 end
 
-minetest.register_on_chat_message(cloaking.auto_uncloak)
 minetest.register_on_leaveplayer(cloaking.auto_uncloak)
-
-if minetest.chatcommands['me'] then
-    local f = minetest.chatcommands['me'].func
-    minetest.override_chatcommand('me', {
-        allow_while_cloaked = true,
-        func = function(name, params)
-            cloaking.auto_uncloak(name)
-            return f(name, params)
-        end
-    })
-end
 
 
 -- API functions
