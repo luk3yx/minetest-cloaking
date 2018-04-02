@@ -57,6 +57,13 @@ minetest.get_server_status = function()
     return status
 end
 
+-- Change the on-join status
+minetest.settings:set_bool('show_statusline_on_connect', false)
+minetest.register_on_joinplayer(function(player)
+    local name = player:get_player_name()
+    minetest.chat_send_player(name, minetest.get_server_status())
+end)
+
 -- Don't allow chat or chatcommands in all commands that don't have the
 --   allow_while_cloaked parameter set.
 local override_chatcommands = function()
@@ -106,7 +113,7 @@ cloaking.cloak = function(player)
     
     cloaked_players[victim] = true
     
-    minetest.chat_send_all("*** " .. victim .. " left the game")
+    minetest.chat_send_all("*** " .. victim .. " left the game.")
     if irc then
         irc.say("*** " .. victim .. " left the game")
     end
@@ -128,7 +135,7 @@ cloaking.uncloak = function(player)
     
     cloaked_players[victim] = false
     
-    minetest.chat_send_all("*** " .. victim .. " joined the game")
+    minetest.chat_send_all("*** " .. victim .. " joined the game.")
     if irc then
         irc.say("*** " .. victim .. " joined the game")
     end
