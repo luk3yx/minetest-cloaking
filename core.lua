@@ -142,7 +142,9 @@ cloaking.uncloak = function(player)
     
     cloaked_players[victim] = false
     
-    minetest.chat_send_all("*** " .. victim .. " joined the game.")
+    if not chat3 then
+        minetest.chat_send_all("*** " .. victim .. " joined the game.")
+    end
     
     for _, f in ipairs(minetest.registered_on_joinplayers) do
         if f ~= cloaking.auto_uncloak then
