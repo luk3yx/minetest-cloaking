@@ -113,12 +113,19 @@ cloaking.cloak = function(player)
     
     cloaked_players[victim] = true
     
-    minetest.chat_send_all("*** " .. victim .. " left the game.")
-    if irc then
-        irc.say("*** " .. victim .. " left the game")
+    local t = nil
+    if areas and areas.hud and areas.hud[victim] then
+        t = areas.hud[victim]
     end
     
-    if areas and areas.hud and areas.hud[victim] then
+    for _, f in ipairs(minetest.registered_on_leaveplayers) do
+        if f ~= cloaking.auto_uncloak then
+            f(p)
+        end
+    end
+    
+    if t then
+        areas.hud[victim] = t
         p:hud_change(areas.hud[victim].areasId, "text", "Cloaked")
         areas.hud[victim].oldAreas = "" 
     end
@@ -136,8 +143,11 @@ cloaking.uncloak = function(player)
     cloaked_players[victim] = false
     
     minetest.chat_send_all("*** " .. victim .. " joined the game.")
-    if irc then
-        irc.say("*** " .. victim .. " joined the game")
+    
+    for _, f in ipairs(minetest.registered_on_joinplayers) do
+        if f ~= cloaking.auto_uncloak then
+            f(p)
+        end
     end
 end
 
