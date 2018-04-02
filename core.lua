@@ -8,9 +8,10 @@ cloaking = {}
 
 -- Expose the real get_connected_players and get_player_by_name for mods that
 --   can use them.
-cloaking.get_connected_players = minetest.get_connected_players
-cloaking.get_player_by_name    = minetest.get_player_by_name
-cloaking.get_server_status     = minetest.get_server_status
+cloaking.get_connected_players      = minetest.get_connected_players
+cloaking.get_player_by_name         = minetest.get_player_by_name
+cloaking.get_objects_inside_radius  = minetest.get_objects_inside_radius
+cloaking.get_server_status          = minetest.get_server_status
 
 local cloaked_players = {}
 local chatcommands_modified = false
@@ -32,6 +33,16 @@ minetest.get_player_by_name = function(player)
     else
         return cloaking.get_player_by_name(player)
     end
+end
+
+minetest.get_objects_inside_radius = function(pos, radius)
+    local objs = {}
+    for _, obj in ipairs(cloaking.get_objects_inside_radius(pos, radius)) do
+        if not cloaked_players[obj:get_player_name()] then
+            table.insert(objs, obj)
+        end
+    end
+    return objs
 end
 
 minetest.get_server_status = function()
