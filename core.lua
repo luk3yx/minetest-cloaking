@@ -81,6 +81,17 @@ local override_chatcommands = function()
             end
         end
     end
+    local c = 0
+    for _, func in ipairs(minetest.registered_on_leaveplayers) do
+        c = c + 1
+        local f = func
+        minetest.registered_on_leaveplayers[c] = function(p, timed_out, cloaked)
+            if not cloaked and cloaked_players[p:get_player_name()] then
+                return
+            end
+            return f(p, timed_out)
+        end
+    end
 end
 
 minetest.register_on_chat_message(function(name)
@@ -120,7 +131,7 @@ cloaking.cloak = function(player)
     
     for _, f in ipairs(minetest.registered_on_leaveplayers) do
         if f ~= cloaking.auto_uncloak then
-            f(p)
+            f(p, false, true)
         end
     end
     
@@ -142,7 +153,7 @@ cloaking.uncloak = function(player)
     
     cloaked_players[victim] = false
     
-    if not chat3 then
+    if victim == "singleplayer" then
         minetest.chat_send_all("*** " .. victim .. " joined the game.")
     end
     
