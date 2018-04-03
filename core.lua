@@ -166,7 +166,7 @@ cloaking.uncloak = function(player)
     end
 end
 
--- Auto-uncloaking
+-- API functions
 cloaking.auto_uncloak = function(player)
     if type(player) ~= "string" then
         player = player:get_player_name()
@@ -176,10 +176,6 @@ cloaking.auto_uncloak = function(player)
     end
 end
 
-minetest.register_on_leaveplayer(cloaking.auto_uncloak)
-
-
--- API functions
 cloaking.get_cloaked_players = function()
     local players = {}
     for player, cloaked in pairs(cloaked_players) do
