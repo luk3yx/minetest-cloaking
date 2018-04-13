@@ -10,3 +10,7 @@ dofile(path .. '/chatcommands.lua')
 if chat3 then
     dofile(path .. '/chat3.lua')
 end
+
+if irc then
+    dofile(path .. '/irc.lua')
+end
