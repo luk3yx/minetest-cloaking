@@ -85,10 +85,11 @@ local override_chatcommands = function()
     for _, func in ipairs(minetest.registered_on_leaveplayers) do
         c = c + 1
         local f = func
-        if f ~= cloaking.auto_uncloak then
+        if f ~= cloaking.auto_uncloak and f ~= cloaking.delayed_uncloak then
             minetest.registered_on_leaveplayers[c] = function(p, t, cloaked)
-                if cloaked ~= 'cloaking' then
-                    cloaking.auto_uncloak()
+                if cloaked ~= 'cloaking' and
+                  cloaked_players[p:get_player_name()] then
+                    return
                 end
                 return f(p, t)
             end
@@ -119,10 +120,10 @@ cloaking.cloak = function(player)
     if type(player) == "string" then
         player = cloaking.get_player_by_name(player)
     end
-    victim = player:get_player_name()
+    local victim = player:get_player_name()
     
     player:set_properties({visual_size = {x = 0, y = 0}, collisionbox = {0,0,0,0,0,0}})
-    p:set_nametag_attributes({text = " "})
+    player:set_nametag_attributes({text = " "})
     
     local t = nil
     if areas and areas.hud and areas.hud[victim] then
@@ -131,7 +132,7 @@ cloaking.cloak = function(player)
     
     for _, f in ipairs(minetest.registered_on_leaveplayers) do
         if f ~= cloaking.auto_uncloak then
-            f(p, false, 'cloaking')
+            f(player, false, 'cloaking')
         end
     end
     
@@ -139,7 +140,7 @@ cloaking.cloak = function(player)
     
     if t then
         areas.hud[victim] = t
-        p:hud_change(areas.hud[victim].areasId, "text", "Cloaked")
+        player:hud_change(areas.hud[victim].areasId, "text", "Cloaked")
         areas.hud[victim].oldAreas = "" 
     end
 end
@@ -148,10 +149,10 @@ cloaking.uncloak = function(player)
     if type(player) == "string" then
         player = cloaking.get_player_by_name(player)
     end
-    victim = player:get_player_name()
+    local victim = player:get_player_name()
     
     player:set_properties({visual_size = {x = 1, y = 1}, collisionbox = {-0.25,-0.85,-0.25,0.25,0.85,0.25}})
-    p:set_nametag_attributes({text = victim})
+    player:set_nametag_attributes({text = victim})
     
     cloaked_players[victim] = false
     
@@ -161,7 +162,7 @@ cloaking.uncloak = function(player)
     
     for _, f in ipairs(minetest.registered_on_joinplayers) do
         if f ~= cloaking.auto_uncloak then
-            f(p)
+            f(player)
         end
     end
 end
@@ -175,6 +176,21 @@ cloaking.auto_uncloak = function(player)
         cloaking.uncloak(player)
     end
 end
+
+cloaking.delayed_uncloak = function(player)
+    local victim = player:get_player_name()
+    if cloaked ~= 'cloaking' and
+      cloaked_players[victim] then
+        minetest.after(0.5, function()
+            cloaked_players[victim] = nil
+            if areas and areas.hud and areas.hud[victim] then
+                areas.hud[victim] = nil
+            end
+        end)
+    end
+end
+
+minetest.register_on_leaveplayer(cloaking.delayed_uncloak)
 
 cloaking.get_cloaked_players = function()
     local players = {}
