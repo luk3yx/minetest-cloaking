@@ -8,7 +8,6 @@ cloaking = {}
 
 -- Expose the real get_connected_players and get_player_by_name for mods that
 --   can use them.
-cloaking.get_connected_players      = minetest.get_connected_players
 cloaking.get_player_by_name         = minetest.get_player_by_name
 cloaking.get_objects_inside_radius  = minetest.get_objects_inside_radius
 cloaking.get_server_status          = minetest.get_server_status
@@ -17,16 +16,6 @@ local cloaked_players = {}
 local chatcommands_modified = false
 
 -- Override built-in functions
-minetest.get_connected_players = function()
-    local a = {}
-    for _, player in ipairs(cloaking.get_connected_players()) do
-        if not cloaked_players[player:get_player_name()] then
-            table.insert(a, player)
-        end
-    end
-    return a
-end
-
 minetest.get_player_by_name = function(player)
     if cloaked_players[player] then
         return nil
@@ -191,6 +180,18 @@ cloaking.delayed_uncloak = function(player)
 end
 
 minetest.register_on_leaveplayer(cloaking.delayed_uncloak)
+
+-- The cloaking mod is so good it fools the built-in get_connected_players, so
+--   overlay that with one that adds cloaked players in.
+cloaking.get_connected_players = function()
+    local a = minetest.get_connected_players()
+    for player, cloaked in pairs(cloaked_players) do
+        if cloaked then
+            table.insert(a, cloaking.get_player_by_name(player))
+        end
+    end
+    return a
+end
 
 cloaking.get_cloaked_players = function()
     local players = {}
