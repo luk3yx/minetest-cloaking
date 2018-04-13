@@ -124,8 +124,6 @@ cloaking.cloak = function(player)
     player:set_properties({visual_size = {x = 0, y = 0}, collisionbox = {0,0,0,0,0,0}})
     p:set_nametag_attributes({text = " "})
     
-    cloaked_players[victim] = true
-    
     local t = nil
     if areas and areas.hud and areas.hud[victim] then
         t = areas.hud[victim]
@@ -136,6 +134,8 @@ cloaking.cloak = function(player)
             f(p, false, 'cloaking')
         end
     end
+    
+    cloaked_players[victim] = true
     
     if t then
         areas.hud[victim] = t
