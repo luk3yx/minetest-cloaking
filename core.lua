@@ -87,7 +87,7 @@ local override_chatcommands = function()
 end
 
 minetest.register_on_chat_message(function(name)
-    if cloaked_players[name] then
+    if message:sub(1, 1) ~= "/" and cloaked_players[name] then
         minetest.chat_send_player(name, "You cannot use chat while cloaked." ..
             " Please use /uncloak if you want to use chat.")
         return true
@@ -110,6 +110,10 @@ cloaking.cloak = function(player)
         player = cloaking.get_player_by_name(player)
     end
     local victim = player:get_player_name()
+    
+    if cloaked_players[victim] then
+        return
+    end
     
     player:set_properties({visual_size = {x = 0, y = 0}, collisionbox = {0,0,0,0,0,0}})
     player:set_nametag_attributes({text = " "})
@@ -140,11 +144,16 @@ cloaking.uncloak = function(player)
     end
     local victim = player:get_player_name()
     
+    if not cloaked_players[victim] then
+        return
+    end
+    
     player:set_properties({visual_size = {x = 1, y = 1}, collisionbox = {-0.25,-0.85,-0.25,0.25,0.85,0.25}})
     player:set_nametag_attributes({text = victim})
     
     cloaked_players[victim] = false
     
+    -- In singleplayer, there is no joined the game message by default.
     if victim == "singleplayer" then
         minetest.chat_send_all("*** " .. victim .. " joined the game.")
     end
@@ -168,8 +177,7 @@ end
 
 cloaking.delayed_uncloak = function(player)
     local victim = player:get_player_name()
-    if cloaked ~= 'cloaking' and
-      cloaked_players[victim] then
+    if cloaked_players[victim] then
         minetest.after(0.5, function()
             cloaked_players[victim] = nil
             if areas and areas.hud and areas.hud[victim] then

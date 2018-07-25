@@ -14,7 +14,7 @@ minetest.register_chatcommand("cloak", {
             victim = player
         end
         
-        p = cloaking.get_player_by_name(victim)
+        local p = cloaking.get_player_by_name(victim)
         if not p then
             return false, "Could not find a player with the name '" .. victim .. "'!"
         end
