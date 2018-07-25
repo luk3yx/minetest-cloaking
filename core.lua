@@ -86,7 +86,7 @@ local override_chatcommands = function()
     end
 end
 
-minetest.register_on_chat_message(function(name)
+minetest.register_on_chat_message(function(name, message)
     if message:sub(1, 1) ~= "/" and cloaked_players[name] then
         minetest.chat_send_player(name, "You cannot use chat while cloaked." ..
             " Please use /uncloak if you want to use chat.")
