@@ -74,7 +74,7 @@ local override_chatcommands = function()
     for _, func in ipairs(minetest.registered_on_leaveplayers) do
         c = c + 1
         local f = func
-        if f ~= cloaking.auto_uncloak and f ~= cloaking.delayed_uncloak then
+        if f ~= cloaking.delayed_uncloak then
             minetest.registered_on_leaveplayers[c] = function(p, t, cloaked)
                 if cloaked ~= 'cloaking' and
                   cloaked_players[p:get_player_name()] then
@@ -159,9 +159,7 @@ cloaking.uncloak = function(player)
     end
     
     for _, f in ipairs(minetest.registered_on_joinplayers) do
-        if f ~= cloaking.auto_uncloak then
-            f(player)
-        end
+        f(player)
     end
 end
 
