@@ -124,7 +124,7 @@ cloaking.cloak = function(player)
     end
     
     for _, f in ipairs(minetest.registered_on_leaveplayers) do
-        if f ~= cloaking.auto_uncloak then
+        if f ~= cloaking.delayed_uncloak then
             f(player, false, 'cloaking')
         end
     end
@@ -151,7 +151,7 @@ cloaking.uncloak = function(player)
     player:set_properties({visual_size = {x = 1, y = 1}, collisionbox = {-0.25,-0.85,-0.25,0.25,0.85,0.25}})
     player:set_nametag_attributes({text = victim})
     
-    cloaked_players[victim] = false
+    cloaked_players[victim] = nil
     
     -- In singleplayer, there is no joined the game message by default.
     if victim == "singleplayer" then
