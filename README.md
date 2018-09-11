@@ -42,7 +42,7 @@ file. You will need to rename the folder from `minetest-cloaking-master` to
 Cloaking adds the following functions:
 
 - `cloaking.cloak_player(player)`: Cloaks a player.
-- `cloaking.uncloak_player(player)`: Cloaks a player.
+- `cloaking.uncloak_player(player)`: Uncloaks a player.
 - `cloaking.get_cloaked_players()`: Gets a list of cloaked player names.
 - `cloaking.is_cloaked(player)`: Checks if a player is cloaked.
 
