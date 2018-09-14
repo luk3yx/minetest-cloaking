@@ -36,6 +36,6 @@ chat3.colorize = function(name, colour, msg)
     local pattern = '<' .. name .. '> '
     if msg:sub(1, pattern:len()) == pattern then
         cloaking.auto_uncloak(name)
-    end  
+    end
     return original_colorize(name, colour, msg)
 end

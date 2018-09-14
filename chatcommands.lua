@@ -13,16 +13,16 @@ minetest.register_chatcommand("cloak", {
         if not victim or victim == '' then
             victim = player
         end
-        
+
         local p = cloaking.get_player_by_name(victim)
         if not p then
             return false, "Could not find a player with the name '" .. victim .. "'!"
         end
-        
+
         if cloaking.is_cloaked(victim) then
             return false, victim .. " is already cloaked!"
         end
-        
+
         cloaking.cloak(p)
         return true, "Cloaked!"
     end
@@ -38,23 +38,23 @@ minetest.register_chatcommand("uncloak", {
         elseif not minetest.get_player_privs(player).privs then
             return false, "You don't have permission to uncloak someone else."
         end
-        
+
         if victim == '*' then
             for _, player in ipairs(cloaking.get_cloaked_players()) do
                 cloaking.uncloak(player)
             end
             return true, "Uncloaked everyone!"
         end
-        
+
         p = cloaking.get_player_by_name(victim)
         if not p then
             return false, "Could not find a player with the name '" .. victim .. "'!"
         end
-        
+
         if not cloaking.is_cloaked(victim) then
             return false, victim .. " is not cloaked!"
         end
-        
+
         cloaking.uncloak(p)
         return true, "Uncloaked!"
     end
