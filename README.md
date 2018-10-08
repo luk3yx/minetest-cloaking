@@ -22,7 +22,8 @@ running around, or by a bug in cloaking itself.
 ## How do I use cloaking?
 
 Cloaking adds a modding API and two chatcommands. Both of these require the
-`privs` priv to execute, however you can uncloak yourself without any priv.
+`cloaking` privilege to execute, however you can uncloak yourself without any
+privileges.
 
 - `/cloak [victim]`: Cloaks yourself, alternatively an unsuspecting `victim`.
 - `/uncloak [victim]`: Uncloaks yourself, or a `victim`.
