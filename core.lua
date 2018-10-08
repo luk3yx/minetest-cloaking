@@ -57,7 +57,7 @@ end)
 --   allow_while_cloaked parameter set.
 local override_chatcommands = function()
     for name, def in pairs(minetest.chatcommands) do
-        if not def.allow_while_cloaked then
+        if not def.allow_while_cloaked and not def._allow_while_cloaked then
             local real_cmd = def.func
             minetest.chatcommands[name].func = function(name, param)
                 if cloaked_players[name] then
@@ -70,6 +70,7 @@ local override_chatcommands = function()
             end
         end
     end
+
     local c = 0
     for _, func in ipairs(minetest.registered_on_leaveplayers) do
         c = c + 1
@@ -98,7 +99,7 @@ end)
 for _, cmd in ipairs({'status', 'kick', 'ban', 'xban', 'xtempban', 'help'}) do
     if minetest.chatcommands[cmd] then
         minetest.override_chatcommand(cmd, {
-            allow_while_cloaked = true
+            _allow_while_cloaked = true
         })
     end
 end
@@ -148,7 +149,8 @@ cloaking.uncloak = function(player)
         return
     end
 
-    player:set_properties({visual_size = {x = 1, y = 1}, collisionbox = {-0.25,-0.85,-0.25,0.25,0.85,0.25}})
+    player:set_properties({visual_size = {x = 1, y = 1},
+        collisionbox = {-0.25,-0.85,-0.25,0.25,0.85,0.25}})
     player:set_nametag_attributes({text = victim})
 
     cloaked_players[victim] = nil
@@ -185,7 +187,14 @@ cloaking.delayed_uncloak = function(player)
     end
 end
 
-minetest.register_on_leaveplayer(cloaking.delayed_uncloak)
+-- Register cloaking.delayed_uncloak "manually" so that the profiler can't
+--   hijack it, preventing it from running.
+minetest.registered_on_leaveplayers[#minetest.registered_on_leaveplayers + 1]
+    = cloaking.delayed_uncloak
+minetest.callback_origins[cloaking.delayed_uncloak] = {
+    mod  = 'cloaking',
+    name = 'delayed_uncloak'
+}
 
 -- The cloaking mod is so good it fools the built-in get_connected_players, so
 --   overlay that with one that adds cloaked players in.

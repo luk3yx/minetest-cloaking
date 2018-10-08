@@ -17,8 +17,7 @@ player is not in-game, and for this it must be hacky.
 ## Help, it crashes
 
 If it crashes, it is either caused by a mod not liking non-existent players
-running around, or by a bug in cloaking. At the moment, cloaking is known to
-crash with `instrumentation` enabled, as that overrides built-in functions.
+running around, or by a bug in cloaking itself.
 
 ## How do I use cloaking?
 
@@ -50,3 +49,8 @@ It also adds the following functions that ignore cloaked players and can
 interact with them:
 `cloaking.get_connected_players`, `cloaking.get_objects_inside_radius` and
 `cloaking.get_player_by_name`.
+
+If you want your chatcommand to work with cloaked players, you can add
+`_allow_while_cloaked = true` to the chatcommand definition. This does not
+require that you add `cloaking` to `depends.txt`, as when cloaking is not loaded
+this parameter is simply ignored.
