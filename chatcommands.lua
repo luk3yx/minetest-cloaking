@@ -4,11 +4,14 @@
 -- © 2018 by luk3yx
 --
 
+minetest.register_privilege('cloaking',
+    'Allows players to cloak and uncloak any in-game player.')
+
 minetest.register_chatcommand("cloak", {
     params = "[victim]",
     description = "Cloak a player so they are not visible.",
-    allow_while_cloaked = true,
-    privs = {privs = true},
+    privs = {cloaking = true},
+    _allow_while_cloaked = true,
     func = function(player, victim)
         if not victim or victim == '' then
             victim = player
@@ -31,11 +34,11 @@ minetest.register_chatcommand("cloak", {
 minetest.register_chatcommand("uncloak", {
     params = "[victim]",
     description = "Uncloak a player so they are visible.",
-    allow_while_cloaked = true,
+    _allow_while_cloaked = true,
     func = function(player, victim)
         if not victim or victim == '' then
             victim = player
-        elseif not minetest.get_player_privs(player).privs then
+        elseif not minetest.get_player_privs(player).cloaking then
             return false, "You don't have permission to uncloak someone else."
         end
 
