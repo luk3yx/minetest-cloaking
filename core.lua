@@ -36,13 +36,14 @@ end
 
 minetest.get_server_status = function()
     local status = cloaking.get_server_status()
+    local motd   = status:sub(status:find('}', 1, true) + 0)
     status = status:sub(1, status:find('{', 1, true))
     local players = {}
     for _, player in ipairs(minetest.get_connected_players()) do
         table.insert(players, player:get_player_name())
     end
     players = table.concat(players, ', ')
-    status = status .. players .. '}'
+    status = status .. players .. motd
     return status
 end
 
