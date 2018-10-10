@@ -29,7 +29,7 @@ minetest.get_player_by_name = function(player)
     end
 end
 
--- Override chat3.send() to obey cloaked players.
+-- Override chat3.send() to add cloaking.on_chat_message().
 local chat3_send = chat3.send
 chat3.send = function(name, msg, ...)
     if cloaking.on_chat_message(name, msg) then return true end
