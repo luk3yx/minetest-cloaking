@@ -45,6 +45,9 @@ Cloaking adds the following functions:
 - `cloaking.uncloak_player(player)`: Uncloaks a player.
 - `cloaking.get_cloaked_players()`: Gets a list of cloaked player names.
 - `cloaking.is_cloaked(player)`: Checks if a player is cloaked.
+- `cloaking.on_chat_message(player, message)`: Returns `true` and warns `player`
+    if they are cloaked and trying to send a chat message, otherwise returns
+    `nil`.
 
 It also adds the following functions that ignore cloaked players and can
 interact with them:

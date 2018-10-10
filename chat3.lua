@@ -29,13 +29,9 @@ minetest.get_player_by_name = function(player)
     end
 end
 
--- Override chat3.colorize to work around not being able to use
---   minetest.register_on_chat_message() with chat3.
-local original_colorize = chat3.colorize
-chat3.colorize = function(name, colour, msg)
-    local pattern = '<' .. name .. '> '
-    if msg:sub(1, pattern:len()) == pattern then
-        cloaking.auto_uncloak(name)
-    end
-    return original_colorize(name, colour, msg)
+-- Override chat3.send() to obey cloaked players.
+local chat3_send = chat3.send
+chat3.send = function(name, msg, ...)
+    if cloaking.on_chat_message(name, msg) then return true end
+    return chat3_send(name, msg, ...)
 end
