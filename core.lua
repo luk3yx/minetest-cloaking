@@ -109,7 +109,7 @@ end
 minetest.register_on_chat_message(cloaking.on_chat_message)
 
 -- Disallow some built-in commands.
-for _, cmd in ipairs({'me', 'msg', 'tell'}) do
+for _, cmd in ipairs({'me', 'msg'}) do
     if minetest.chatcommands[cmd] then
         minetest.override_chatcommand(cmd, {
             _disallow_while_cloaked = true
