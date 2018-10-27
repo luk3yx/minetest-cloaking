@@ -55,6 +55,8 @@ interact with them:
 `cloaking.get_player_by_name`.
 
 If you have made chatcommand work with players that aren't in-game, you can add
-`_allow_while_cloaked = true` to the chatcommand definition. This does not
-require that you add `cloaking` to `depends.txt`, as when cloaking is not loaded
-this parameter is simply ignored.
+`_allow_while_cloaked = true` to the chatcommand definition. If you explicitly
+don't want your chatcommand working with cloaked players, you can add
+`_disallow_while_cloaked = true` to the definition.
+These modifications do not require that you add `cloaking` to `depends.txt`, as
+when cloaking is not loaded this parameter is simply ignored.

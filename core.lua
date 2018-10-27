@@ -62,7 +62,12 @@ local override_chatcommands = function()
             local real_cmd = def.func
             minetest.chatcommands[name].func = function(name, param)
                 if cloaked_players[name] then
-                    local pass, r1, r2 = pcall(real_cmd, name, param)
+                    local pass, r1, r2
+                    if def._disallow_while_cloaked then
+                        pass = false
+                    else
+                        pass, r1, r2 = pcall(real_cmd, name, param)
+                    end
                     if pass then
                         return r1, r2
                     else
@@ -102,6 +107,15 @@ cloaking.on_chat_message = function(name, message)
 end
 
 minetest.register_on_chat_message(cloaking.on_chat_message)
+
+-- Disallow some built-in commands.
+for _, cmd in ipairs({'me', 'msg', 'tell'}) do
+    if minetest.chatcommands[cmd] then
+        minetest.override_chatcommand(cmd, {
+            _disallow_while_cloaked = true
+        })
+    end
+end
 
 -- The cloak and uncloak functions
 cloaking.cloak = function(player)
