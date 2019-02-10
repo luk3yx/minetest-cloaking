@@ -1,7 +1,7 @@
 --
 -- Minetest cloaking mod: chatcommands
 --
--- © 2018 by luk3yx
+-- © 2019 by luk3yx
 --
 
 minetest.register_privilege('cloaking',
@@ -26,6 +26,7 @@ minetest.register_chatcommand("cloak", {
             return false, victim .. " is already cloaked!"
         end
 
+        minetest.log('action', player .. ' cloaks ' .. victim .. '.')
         cloaking.cloak(p)
         return true, "Cloaked!"
     end
@@ -42,14 +43,16 @@ minetest.register_chatcommand("uncloak", {
             return false, "You don't have permission to uncloak someone else."
         end
 
+
         if victim == '*' then
+            minetest.log('action', player .. ' uncloaks everyone.')
             for _, player in ipairs(cloaking.get_cloaked_players()) do
                 cloaking.uncloak(player)
             end
             return true, "Uncloaked everyone!"
         end
 
-        p = cloaking.get_player_by_name(victim)
+        local p = cloaking.get_player_by_name(victim)
         if not p then
             return false, "Could not find a player with the name '" .. victim .. "'!"
         end
@@ -58,7 +61,27 @@ minetest.register_chatcommand("uncloak", {
             return false, victim .. " is not cloaked!"
         end
 
+        minetest.log('action', player .. ' uncloaks ' .. victim .. '.')
         cloaking.uncloak(p)
         return true, "Uncloaked!"
+    end
+})
+
+-- Allow /teleport to be used on cloaked players if you have the "cloaking"
+--  privilege.
+local tp = minetest.registered_chatcommands['teleport'].func
+minetest.override_chatcommand('teleport', {
+    func = function(name, param)
+        if minetest.check_player_privs(name, 'cloaking') then
+            local g = minetest.get_player_by_name
+            minetest.get_player_by_name = cloaking.get_player_by_name
+
+            local err, msg = tp(name, param)
+
+            minetest.get_player_by_name = g
+            return err, msg
+        else
+            return tp(name, param)
+        end
     end
 })

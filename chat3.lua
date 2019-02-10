@@ -1,14 +1,14 @@
 --
 -- Minetest cloaking mod: chat3 fixes
 --
--- © 2018 by luk3yx
+-- © 2019 by luk3yx
 --
 
 -- Override minetest.get_connected_players() so it lists cloaked players for
 --   chat3.
 local get_uncloaked_players = minetest.get_connected_players
 
-minetest.get_connected_players = function()
+function minetest.get_connected_players()
     local d = debug.getinfo(2)
     if d.func == chat3.send or d.func == minetest.chatcommands['me'].func then
         return cloaking.get_connected_players()
@@ -20,7 +20,7 @@ end
 -- Override get_player_by_name() to allow chat3 to access cloaked players.
 local get_uncloaked_player_by_name = minetest.get_player_by_name
 
-minetest.get_player_by_name = function(player)
+function minetest.get_player_by_name(player)
     local d = debug.getinfo(2)
     if d.func == chat3.send or d.func == minetest.chatcommands["me"].func then
         return cloaking.get_player_by_name(player)

@@ -1,7 +1,7 @@
 --
 -- Minetest player cloaking mod: Core functions
 --
--- © 2018 by luk3yx
+-- © 2019 by luk3yx
 --
 
 cloaking = {}
@@ -16,7 +16,7 @@ local cloaked_players = {}
 local chatcommands_modified = false
 
 -- Override built-in functions
-minetest.get_player_by_name = function(player)
+function minetest.get_player_by_name(player)
     if cloaked_players[player] then
         return nil
     else
@@ -24,7 +24,7 @@ minetest.get_player_by_name = function(player)
     end
 end
 
-minetest.get_objects_inside_radius = function(pos, radius)
+function minetest.get_objects_inside_radius(pos, radius)
     local objs = {}
     for _, obj in ipairs(cloaking.get_objects_inside_radius(pos, radius)) do
         if not cloaked_players[obj:get_player_name()] then
@@ -34,7 +34,7 @@ minetest.get_objects_inside_radius = function(pos, radius)
     return objs
 end
 
-minetest.get_server_status = function()
+function minetest.get_server_status()
     local status = cloaking.get_server_status()
     local motd   = status:sub(status:find('}', 1, true) + 0)
     status = status:sub(1, status:find('{', 1, true))
@@ -98,7 +98,8 @@ local override_chatcommands = function()
     end
 end
 
-cloaking.on_chat_message = function(name, message)
+-- Handle chat messages
+function cloaking.on_chat_message(name, message)
     if message:sub(1, 1) ~= "/" and cloaked_players[name] then
         minetest.chat_send_player(name, "You cannot use chat while cloaked." ..
             " Please use /uncloak if you want to use chat.")
@@ -106,7 +107,11 @@ cloaking.on_chat_message = function(name, message)
     end
 end
 
-minetest.register_on_chat_message(cloaking.on_chat_message)
+table.insert(minetest.registered_on_chat_messages, 1, cloaking.on_chat_message)
+minetest.callback_origins[cloaking.on_chat_message] = {
+    mod  = 'cloaking',
+    name = 'on_chat_message'
+}
 
 -- Disallow some built-in commands.
 for _, cmd in ipairs({'me', 'msg'}) do
@@ -118,7 +123,8 @@ for _, cmd in ipairs({'me', 'msg'}) do
 end
 
 -- The cloak and uncloak functions
-cloaking.cloak = function(player)
+local use_areas = minetest.get_modpath('areas')
+function cloaking.cloak(player)
     if not chatcommands_modified then override_chatcommands() end
     if type(player) == "string" then
         player = cloaking.get_player_by_name(player)
@@ -133,7 +139,7 @@ cloaking.cloak = function(player)
     player:set_nametag_attributes({text = " "})
 
     local t = nil
-    if areas and areas.hud and areas.hud[victim] then
+    if use_areas and areas.hud[victim] then
         t = areas.hud[victim]
     end
 
@@ -150,9 +156,11 @@ cloaking.cloak = function(player)
         player:hud_change(areas.hud[victim].areasId, "text", "Cloaked")
         areas.hud[victim].oldAreas = ""
     end
+
+    minetest.log('verbose', victim .. ' was cloaked.')
 end
 
-cloaking.uncloak = function(player)
+function cloaking.uncloak(player)
     if type(player) == "string" then
         player = cloaking.get_player_by_name(player)
     end
@@ -176,10 +184,12 @@ cloaking.uncloak = function(player)
     for _, f in ipairs(minetest.registered_on_joinplayers) do
         f(player)
     end
+
+    minetest.log('verbose', victim .. ' was uncloaked.')
 end
 
 -- API functions
-cloaking.auto_uncloak = function(player)
+function cloaking.auto_uncloak(player)
     if type(player) ~= "string" then
         player = player:get_player_name()
     end
@@ -188,7 +198,7 @@ cloaking.auto_uncloak = function(player)
     end
 end
 
-cloaking.delayed_uncloak = function(player)
+function cloaking.delayed_uncloak(player)
     local victim = player:get_player_name()
     if cloaked_players[victim] then
         minetest.after(0.5, function()
@@ -211,7 +221,7 @@ minetest.callback_origins[cloaking.delayed_uncloak] = {
 
 -- The cloaking mod is so good it fools the built-in get_connected_players, so
 --   overlay that with one that adds cloaked players in.
-cloaking.get_connected_players = function()
+function cloaking.get_connected_players()
     local a = minetest.get_connected_players()
     for player, cloaked in pairs(cloaked_players) do
         if cloaked then
@@ -221,7 +231,7 @@ cloaking.get_connected_players = function()
     return a
 end
 
-cloaking.get_cloaked_players = function()
+function cloaking.get_cloaked_players()
     local players = {}
     for player, cloaked in pairs(cloaked_players) do
         if cloaked then
@@ -231,7 +241,16 @@ cloaking.get_cloaked_players = function()
     return players
 end
 
-cloaking.is_cloaked = function(player)
+-- Allow mods to get a list of cloaked and uncloaked player names.
+function cloaking.get_connected_names()
+    local a = cloaking.get_cloaked_players()
+    for _, player in ipairs(minetest.get_connected_players()) do
+        table.insert(a, player:get_player_name())
+    end
+    return a
+end
+
+function cloaking.is_cloaked(player)
     if type(player) ~= "string" then player = player:get_player_name() end
     return cloaked_players[player] and true or false
 end

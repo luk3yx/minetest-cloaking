@@ -1,0 +1,3 @@
+# Cloaked chat - Allow cloaked players with the "cloaking" priv to use a special
+# chat channel.
+cloaking.enable_cloaked_chat (Cloaked chat) bool true
