@@ -123,7 +123,7 @@ for _, cmd in ipairs({'me', 'msg'}) do
 end
 
 -- The cloak and uncloak functions
-local use_areas = minetest.get_modpath('areas')
+local use_areas = minetest.get_modpath('areas') and areas and areas.hud
 function cloaking.cloak(player)
     if not chatcommands_modified then override_chatcommands() end
     if type(player) == "string" then
@@ -150,6 +150,14 @@ function cloaking.cloak(player)
     end
 
     cloaked_players[victim] = true
+
+    -- TODO: Get the highest ID somehow
+    local t_id = t and t.areasId
+    for id = 0, 20 do
+        if id ~= t_id and player:hud_get(id) then
+            player:hud_remove(id)
+        end
+    end
 
     if t then
         areas.hud[victim] = t
@@ -260,7 +268,7 @@ minetest.register_on_player_hpchange(function(player, hp_change)
     if player and hp_change < 0 then
         local name = player:get_player_name()
         if cloaked_players[name] then
-            hp_change = 0 - hp_change
+            hp_change = 0
         end
     end
     return hp_change

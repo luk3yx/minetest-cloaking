@@ -1,2 +1,3 @@
+areas?
 chat3?
 irc?
