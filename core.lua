@@ -254,3 +254,14 @@ function cloaking.is_cloaked(player)
     if type(player) ~= "string" then player = player:get_player_name() end
     return cloaked_players[player] and true or false
 end
+
+-- Prevent cloaked players dying
+minetest.register_on_player_hpchange(function(player, hp_change)
+    if player and hp_change < 0 then
+        local name = player:get_player_name()
+        if cloaked_players[name] then
+            hp_change = 0 - hp_change
+        end
+    end
+    return hp_change
+end, true)
