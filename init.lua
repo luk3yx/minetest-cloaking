@@ -27,3 +27,24 @@ end
 if cloaked_chat or cloaked_chat == nil then
     dofile(path .. '/cloaked-chat.lua')
 end
+
+-- Enforce security of logs
+table.insert(minetest.registered_on_chat_messages, 1, function(name, msg)
+    if msg:find('[\r\n]') then
+        minetest.chat_send_player(name,
+            'You cannot use newlines in chat messages.')
+        return true
+    end
+end)
+
+local log = minetest.log
+function minetest.log(level, text)
+    level = level:gsub('[\r\n]', '  ')
+    if text then
+        text  = text:gsub('[\r\n]', '  ')
+    else
+        text  = level
+        level = 'none'
+    end
+    return log(level, text)
+end
