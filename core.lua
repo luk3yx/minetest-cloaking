@@ -164,7 +164,7 @@ end
 -- "Unhide" players
 function cloaking.unhide_player(player)
     -- Sanity check
-    local player, victim = player_and_name(player, false)
+    local player, victim = player_and_name(player, true)
     if not player then return end
 
     -- Get the new selectionbox
@@ -172,11 +172,11 @@ function cloaking.unhide_player(player)
     if minetest.features.object_independent_selectionbox then
         box = player:get_properties().collisionbox
     end
-    box = box or {-0.25,-0.85,-0.25,0.25,0.85,0.25}
+    box = box or {-0.3,-1,-0.3,0.3,0.75,0.3}
 
     -- Make the player visible
     player:set_properties({
-        visual_size    = {x = 0, y = 0},
+        visual_size    = {x = 1, y = 1},
         [selectionbox] = box,
     })
     player:set_nametag_attributes({text = victim})
