@@ -122,21 +122,75 @@ for _, cmd in ipairs({'me', 'msg'}) do
     end
 end
 
--- The cloak and uncloak functions
-local use_areas = minetest.get_modpath('areas') and areas and areas.hud
-function cloaking.cloak(player)
-    if not chatcommands_modified then override_chatcommands() end
+-- Get player and name
+local function player_and_name(player, n)
     if type(player) == "string" then
         player = cloaking.get_player_by_name(player)
     end
     local victim = player:get_player_name()
 
-    if cloaked_players[victim] then
-        return
+    if n then
+        if cloaked_players[victim] then return end
+    elseif n ~= nil then
+        if not cloaked_players[victim] then return end
     end
 
-    player:set_properties({visual_size = {x = 0, y = 0}, collisionbox = {0,0,0,0,0,0}})
+    return player, victim
+end
+
+-- 0.4.X compatibility
+local selectionbox = 'selectionbox'
+if not minetest.features.object_independent_selectionbox then
+    selectionbox = 'collisionbox'
+end
+
+-- "Hide" players
+function cloaking.hide_player(player)
+    -- Sanity check
+    if type(player) ~= 'string' then
+        local _
+        player, _ = player_and_name(player, true)
+        if not player then return end
+    end
+
+    -- Hide the player
+    player:set_properties({
+        visual_size    = {x = 0, y = 0},
+        [selectionbox] = {0,0,0,0,0,0},
+    })
     player:set_nametag_attributes({text = " "})
+end
+
+-- "Unhide" players
+function cloaking.unhide_player(player)
+    -- Sanity check
+    local player, victim = player_and_name(player, false)
+    if not player then return end
+
+    -- Get the new selectionbox
+    local box = false
+    if minetest.features.object_independent_selectionbox then
+        box = player:get_properties().collisionbox
+    end
+    box = box or {-0.25,-0.85,-0.25,0.25,0.85,0.25}
+
+    -- Make the player visible
+    player:set_properties({
+        visual_size    = {x = 0, y = 0},
+        [selectionbox] = box,
+    })
+    player:set_nametag_attributes({text = victim})
+end
+
+-- The cloak and uncloak functions
+local use_areas = minetest.get_modpath('areas') and areas and areas.hud
+function cloaking.cloak(player)
+    if not chatcommands_modified then override_chatcommands() end
+
+    local player, victim = player_and_name(player, true)
+    if not player then return end
+
+    cloaking.hide_player(player)
 
     local t = nil
     if use_areas and areas.hud[victim] then
@@ -169,20 +223,11 @@ function cloaking.cloak(player)
 end
 
 function cloaking.uncloak(player)
-    if type(player) == "string" then
-        player = cloaking.get_player_by_name(player)
-    end
-    local victim = player:get_player_name()
-
-    if not cloaked_players[victim] then
-        return
-    end
-
-    player:set_properties({visual_size = {x = 1, y = 1},
-        collisionbox = {-0.25,-0.85,-0.25,0.25,0.85,0.25}})
-    player:set_nametag_attributes({text = victim})
+    local player, victim = player_and_name(player, false)
+    if not player then return end
 
     cloaked_players[victim] = nil
+    cloaking.unhide_player(player)
 
     -- In singleplayer, there is no joined the game message by default.
     if victim == "singleplayer" then

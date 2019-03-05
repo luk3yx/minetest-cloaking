@@ -50,13 +50,16 @@ Cloaking adds the following functions:
 - `cloaking.get_connected_names()`: Gets a list of cloaked and uncloaked player
     names.
 - `cloaking.is_cloaked(player)`: Checks if a player is cloaked.
-- `cloaking.on_chat_message(player, message)`: Returns `true` and warns `player`
-    if they are cloaked and trying to send a chat message, otherwise returns
-    `nil`.
+- `cloaking.hide_player(player)`: Hides a player without cloaking them. If/when
+    minetest.hide_player() gets introduced, this will become an alias for that.
+- `cloaking.unhide_player(player)`: Unhides a player previously hidden with
+    `cloaking.hide_player()`.
 - `cloaking.chat`: Cloaked chat API, this is `nil` if cloaked chat is disabled.
   - `cloaking.chat.send(message)`: Sends a message to cloaked chat.
   - `cloaking.chat.prefix`: The text (`-Cloaked-`) that is prepended to cloaked
     chat messages before they are sent to players.
+
+*Any above functions requiring "player" as a parameter also accept a player name, provided the player is online.*
 
 It also adds the following functions that ignore cloaked players and can
 interact with them:
