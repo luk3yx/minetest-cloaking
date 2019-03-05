@@ -155,8 +155,9 @@ function cloaking.hide_player(player)
 
     -- Hide the player
     player:set_properties({
-        visual_size    = {x = 0, y = 0},
-        [selectionbox] = {0,0,0,0,0,0},
+        visual_size          = {x = 0, y = 0},
+        [selectionbox]       = {0,0,0,0,0,0},
+        makes_footstep_sound = false,
     })
     player:set_nametag_attributes({text = " "})
 end
@@ -176,8 +177,9 @@ function cloaking.unhide_player(player)
 
     -- Make the player visible
     player:set_properties({
-        visual_size    = {x = 1, y = 1},
-        [selectionbox] = box,
+        visual_size          = {x = 1, y = 1},
+        [selectionbox]       = box,
+        makes_footstep_sound = true,
     })
     player:set_nametag_attributes({text = victim})
 end
