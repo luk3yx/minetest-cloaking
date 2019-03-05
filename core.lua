@@ -147,7 +147,7 @@ end
 -- "Hide" players
 function cloaking.hide_player(player)
     -- Sanity check
-    if type(player) ~= 'string' then
+    if type(player) == "string" then
         local _
         player, _ = player_and_name(player, true)
         if not player then return end
