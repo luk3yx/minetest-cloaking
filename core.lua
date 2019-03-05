@@ -177,7 +177,7 @@ function cloaking.unhide_player(player)
 
     -- Make the player visible
     player:set_properties({
-        visual_size          = {x = 1, y = 1},
+        visual_size          = {x = 1, y = 2},
         [selectionbox]       = box,
         makes_footstep_sound = true,
     })
