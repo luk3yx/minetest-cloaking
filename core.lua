@@ -34,8 +34,18 @@ function minetest.get_objects_inside_radius(pos, radius)
     return objs
 end
 
-function minetest.get_server_status()
-    local status = cloaking.get_server_status()
+local override_statusline = false
+if minetest.settings:get_bool('show_statusline_on_connect') ~= nil then
+    override_statusline = true
+end
+
+function minetest.get_server_status(name, joined)
+    if override_statusline and joined == true then
+        override_statusline = false
+    end
+
+    local status = cloaking.get_server_status(name, joined)
+    if not status or status == "" then return status end
     local motd   = status:sub(status:find('}', 1, true) + 0)
     status = status:sub(1, status:find('{', 1, true))
     local players = {}
@@ -48,11 +58,19 @@ function minetest.get_server_status()
 end
 
 -- Change the on-join status
-minetest.settings:set_bool('show_statusline_on_connect', false)
-minetest.register_on_joinplayer(function(player)
-    local name = player:get_player_name()
-    minetest.chat_send_player(name, minetest.get_server_status())
-end)
+if override_statusline then
+    minetest.settings:set_bool('show_statusline_on_connect', false)
+    minetest.register_on_joinplayer(function(player)
+        if not override_statusline then return end
+
+        local name   = player:get_player_name()
+        local status = minetest.get_server_status(name, 'cloaking')
+
+        if status and status ~= '' then
+            minetest.chat_send_player(name, status)
+        end
+    end)
+end
 
 -- Don't allow chat or chatcommands in all commands that don't have the
 --   allow_while_cloaked parameter set.
