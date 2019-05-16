@@ -15,6 +15,8 @@ if minetest.get_modpath('irc') then
     dofile(path .. '/irc.lua')
 end
 
+dofile(path .. '/stealth.lua')
+
 -- Attempt to support older versions of Minetest
 local cloaked_chat = 'cloaking.enable_cloaked_chat'
 if minetest.settings and minetest.settings.get_bool then
