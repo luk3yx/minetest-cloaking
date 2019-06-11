@@ -34,11 +34,11 @@ privileges.
 ## How do I download cloaking?
 
 You can either run
-`git clone https://github.com/luk3yx/minetest-cloaking cloaking`, or download
-a  [zip](https://github.com/luk3yx/minetest-cloaking/archive/master.zip) or
-[tar.gz](https://github.com/luk3yx/minetest-cloaking/archive/master.tar.gz)
-file. You will need to rename the folder from `minetest-cloaking-master` to
-`cloaking` for it to work properly.
+`git clone https://git.minetest.land/luk3yx/cloaking.git`, or download
+a  [zip](https://git.minetest.land/luk3yx/cloaking/archive/master.zip) or
+[tar.gz](https://git.minetest.land/luk3yx/cloaking/archive/master.tar.gz)
+file. You will need to rename the downloaded folder to `cloaking` (if it
+doesn't already have that name) for it to work properly.
 
 ## How do I use the API?
 
