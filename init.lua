@@ -29,13 +29,16 @@ if cloaked_chat or cloaked_chat == nil then
 end
 
 -- Enforce security of logs
-table.insert(minetest.registered_on_chat_messages, 1, function(name, msg)
-    if msg:find('[\r\n]') then
-        minetest.chat_send_player(name,
-            'You cannot use newlines in chat messages.')
-        return true
-    end
-end)
+if not minetest.features.formspec_version_element then
+    -- Not required in Minetest 5.0.1 or later.
+    table.insert(minetest.registered_on_chat_messages, 1, function(name, msg)
+        if msg:find('[\r\n]') then
+            minetest.chat_send_player(name,
+                'You cannot use newlines in chat messages.')
+            return true
+        end
+    end)
+end
 
 local log = minetest.log
 function minetest.log(level, text)
