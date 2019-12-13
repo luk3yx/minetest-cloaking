@@ -73,4 +73,16 @@ don't want your chatcommand working with cloaked players, you can add
 These modifications do not require that you add `cloaking` to `depends.txt`, as
 when cloaking is not loaded this parameter is simply ignored.
 
+## Backported bugfixes
+
+To ensure server stability, the cloaking mod backports the following bugfixes
+if it determines they are necessary for your server:
+
+ - Blocking newlines in chat messages (MT < 5.0.1).
+ - Prevent saying `%2` in chat from crashing the server (MT == 5.1.0).
+
+If you do not want this for whatever reason (although I do not recommend it),
+you can disable these backports by adding `cloaking.backport_bugfixes = false`
+to your minetest.conf.
+
 [cloaking device]: https://memory-alpha.fandom.com/wiki/Cloaking_device

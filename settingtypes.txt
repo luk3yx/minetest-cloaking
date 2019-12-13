@@ -1,3 +1,6 @@
 # Cloaked chat - Allow cloaked players with the "cloaking" priv to use a special
 # chat channel.
 cloaking.enable_cloaked_chat (Cloaked chat) bool true
+
+# Backports certain bugfixes to older versions of Minetest.
+cloaking.backport_bugfixes (Backport MT bugfixes) bool true
