@@ -250,7 +250,7 @@ function cloaking.cloak(player)
 
     -- TODO: Get the highest ID somehow
     local t_id = t and t.areasId
-    for id = 0, 20 do
+    for id = 0, 100 do
         if id ~= t_id and player:hud_get(id) then
             player:hud_remove(id)
         end
