@@ -75,7 +75,7 @@ end
 -- Don't allow chat or chatcommands in all commands that don't have the
 --   allow_while_cloaked parameter set.
 local override_chatcommands = function()
-    for name, def in pairs(minetest.chatcommands) do
+    for name, def in pairs(minetest.registered_chatcommands) do
         if not def.allow_while_cloaked and not def._allow_while_cloaked then
             local real_cmd = def.func
             minetest.chatcommands[name].func = function(name, param)
