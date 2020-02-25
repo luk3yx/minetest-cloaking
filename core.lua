@@ -316,8 +316,21 @@ minetest.callback_origins[cloaking.delayed_uncloak] = {
     name = 'delayed_uncloak'
 }
 
--- The cloaking mod is so good it fools the built-in get_connected_players, so
---   overlay that with one that adds cloaked players in.
+
+-- Override minetest.get_connected_players(), required for Minetest 5.2.0+.
+local get_connected_players = minetest.get_connected_players
+function minetest.get_connected_players()
+    local res = get_connected_players()
+    for i = #res, 1, -1 do
+        if cloaked_players[res[i]:get_player_name()] then
+            table.remove(res, i)
+        end
+    end
+    return res
+end
+
+-- There's currently no way to check if cloaked players will appear in the
+-- unmodified minetest.get_connected_players().
 function cloaking.get_connected_players()
     local a = minetest.get_connected_players()
     for player, cloaked in pairs(cloaked_players) do
