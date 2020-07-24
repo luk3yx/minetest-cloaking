@@ -187,7 +187,10 @@ function cloaking.hide_player(player, preserve_attrs)
         [selectionbox]       = {0,0,0,0,0,0},
         makes_footstep_sound = false,
     })
-    player:set_nametag_attributes({text = " "})
+    player:set_nametag_attributes({
+        text = ' ',
+        color = {r = 0, g = 0, b = 0, a = 0}
+    })
 end
 
 -- Remove original attributes when players leave
@@ -222,7 +225,10 @@ function cloaking.unhide_player(player)
 
     -- Make the player visible
     player:set_properties(data[1])
-    player:set_nametag_attributes(data[2] or {text = victim})
+    player:set_nametag_attributes(data[2] or {
+        text = victim,
+        color = {r = 255, g = 255, b = 255, a = 255}
+    })
 end
 
 -- The cloak and uncloak functions
