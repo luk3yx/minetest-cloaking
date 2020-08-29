@@ -74,10 +74,12 @@ end
 
 -- Backport https://github.com/minetest/minetest/pull/10341
 -- TODO: Only apply this workaround on vulnerable MT versions.
-minetest.register_allow_player_inventory_action(function(player, _, inv)
-    local inv_location = inv:get_location()
-    if inv_location.type == 'player' and
-            inv_location.name ~= player:get_player_name() then
-        return 0
-    end
-end)
+if minetest.register_allow_player_inventory_action then
+    minetest.register_allow_player_inventory_action(function(player, _, inv)
+        local inv_location = inv:get_location()
+        if inv_location.type == 'player' and
+                inv_location.name ~= player:get_player_name() then
+            return 0
+        end
+    end)
+end
