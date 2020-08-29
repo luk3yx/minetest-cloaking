@@ -80,6 +80,8 @@ if it determines they are necessary for your server:
 
  - Blocking newlines in chat messages (MT < 5.0.1).
  - Prevent saying `%2` in chat from crashing the server (MT == 5.1.0).
+ - Prevent hacked clients from being able to access the inventories of other
+    players (MT < 5.4.0).
 
 If you do not want this for whatever reason (although I do not recommend it),
 you can disable these backports by adding `cloaking.backport_bugfixes = false`

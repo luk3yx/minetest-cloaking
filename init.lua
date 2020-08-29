@@ -1,7 +1,7 @@
 --
 -- Minetest player cloaking mod
 --
--- © 2019 by luk3yx
+-- © 2020 by luk3yx
 --
 local path = minetest.get_modpath('cloaking')
 dofile(path .. '/core.lua')
@@ -71,3 +71,13 @@ if minetest.format_chat_message then
         end
     end
 end
+
+-- Backport https://github.com/minetest/minetest/pull/10341
+-- TODO: Only apply this workaround on vulnerable MT versions.
+minetest.register_allow_player_inventory_action(function(player, action, inv)
+    local inv_location = inv:get_location()
+    if inv_location.type == 'player' and
+            inv_location.name ~= player:get_player_name() then
+        return 0
+    end
+end)
