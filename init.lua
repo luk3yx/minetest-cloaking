@@ -49,18 +49,6 @@ if not minetest.features.formspec_version_element then
     end)
 end
 
-local log = minetest.log
-function minetest.log(level, text)
-    level = level:gsub('[\r\n]', '  ')
-    if text then
-        text  = text:gsub('[\r\n]', '  ')
-    else
-        text  = level
-        level = 'none'
-    end
-    return log(level, text)
-end
-
 -- Stop "%2" from crashing the server
 if minetest.format_chat_message then
     local good, _ = pcall(minetest.format_chat_message, 'name', '%2')
