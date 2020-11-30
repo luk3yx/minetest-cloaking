@@ -186,6 +186,7 @@ function cloaking.hide_player(player, preserve_attrs)
         visual_size          = {x = 0, y = 0, z = 0},
         [selectionbox]       = {0,0,0,0,0,0},
         makes_footstep_sound = false,
+        show_on_minimap      = false,
     })
     player:set_nametag_attributes({
         text = ' ',
@@ -220,6 +221,7 @@ function cloaking.unhide_player(player)
             visual_size          = {x = 1, y = 2, z = 1},
             [selectionbox]       = box,
             makes_footstep_sound = true,
+            show_on_minimap      = true,
         }}
     end
 
