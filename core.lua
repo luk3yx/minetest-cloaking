@@ -46,7 +46,9 @@ function minetest.get_server_status(name, joined)
 
     local status = cloaking.get_server_status(name, joined)
     if not status or status == "" then return status end
-    local motd   = status:sub(status:find('}', 1, true) + 0)
+    local e = status:find('}', 1, true)
+    if not e then return status end
+    local motd = status:sub(e)
     status = status:sub(1, status:find('{', 1, true))
     local players = {}
     for _, player in ipairs(minetest.get_connected_players()) do
