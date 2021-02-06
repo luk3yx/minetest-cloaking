@@ -10,6 +10,7 @@ cloaking = {}
 --   can use them.
 cloaking.get_player_by_name         = minetest.get_player_by_name
 cloaking.get_objects_inside_radius  = minetest.get_objects_inside_radius
+cloaking.get_objects_in_area        = minetest.get_objects_in_area
 cloaking.get_server_status          = minetest.get_server_status
 
 local cloaked_players = {}
@@ -24,14 +25,26 @@ function minetest.get_player_by_name(player)
     end
 end
 
-function minetest.get_objects_inside_radius(pos, radius)
-    local objs = {}
-    for _, obj in ipairs(cloaking.get_objects_inside_radius(pos, radius)) do
-        if not cloaked_players[obj:get_player_name()] then
-            table.insert(objs, obj)
+local function remove_cloaked_players(list)
+    for i = #list, 1, -1 do
+        if cloaked_players[list[i]:get_player_name()] then
+            table.remove(list, i)
         end
     end
+end
+
+function minetest.get_objects_inside_radius(pos, radius)
+    local objs = cloaking.get_objects_inside_radius(pos, radius)
+    remove_cloaked_players(objs)
     return objs
+end
+
+if cloaking.get_objects_in_area then
+    function minetest.get_objects_in_area(pos1, pos2)
+        local objs = cloaking.get_objects_in_area(pos1, pos2)
+        remove_cloaked_players(objs)
+        return objs
+    end
 end
 
 local override_statusline = false
@@ -324,11 +337,7 @@ minetest.callback_origins[cloaking.delayed_uncloak] = {
 local get_connected_players = minetest.get_connected_players
 function minetest.get_connected_players()
     local res = get_connected_players()
-    for i = #res, 1, -1 do
-        if cloaked_players[res[i]:get_player_name()] then
-            table.remove(res, i)
-        end
-    end
+    remove_cloaked_players(res)
     return res
 end
 
