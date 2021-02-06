@@ -1,7 +1,7 @@
 --
 -- Minetest player cloaking mod: "Cloaked chat"
 --
--- © 2019 by luk3yx
+-- Copyright © 2019 by luk3yx
 --
 
 cloaking.chat = {prefix = '-Cloaked-'}

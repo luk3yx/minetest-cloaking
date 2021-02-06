@@ -2,5 +2,8 @@
 # chat channel.
 cloaking.enable_cloaked_chat (Cloaked chat) bool true
 
+# Enables /shadow.
+cloaking.enable_shadow (Shadow command) bool true
+
 # Backports certain bugfixes to older versions of Minetest.
 cloaking.backport_bugfixes (Backport MT bugfixes) bool true

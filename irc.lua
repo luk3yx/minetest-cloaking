@@ -1,7 +1,7 @@
 --
 -- Minetest cloaking mod: IRC fixes
 --
--- © 2019 by luk3yx
+-- Copyright © 2019 by luk3yx
 --
 
 local irc_sendLocal = irc.sendLocal

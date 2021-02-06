@@ -1,7 +1,7 @@
 --
 -- Minetest cloaking mod: chat3 fixes
 --
--- © 2019 by luk3yx
+-- Copyright © 2019 by luk3yx
 --
 
 -- Override minetest.get_connected_players() so it lists cloaked players for

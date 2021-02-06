@@ -1,7 +1,7 @@
 --
 -- Minetest player cloaking mod: Core functions
 --
--- © 2019 by luk3yx
+-- Copyright © 2018-2021 by luk3yx
 --
 
 cloaking = {}
@@ -76,11 +76,12 @@ end
 
 -- Don't allow chat or chatcommands in all commands that don't have the
 --   allow_while_cloaked parameter set.
-local override_chatcommands = function()
-    for name, def in pairs(minetest.registered_chatcommands) do
+local function override_chatcommands()
+    local chatcommands = minetest.registered_chatcommands
+    for cmd_name, def in pairs(chatcommands) do
         if not def.allow_while_cloaked and not def._allow_while_cloaked then
             local real_cmd = def.func
-            minetest.chatcommands[name].func = function(name, param)
+            chatcommands[cmd_name].func = function(name, param)
                 if cloaked_players[name] then
                     local pass, r1, r2
                     if def._disallow_while_cloaked then
@@ -166,10 +167,9 @@ end
 
 -- "Hide" players
 local hidden = {}
-function cloaking.hide_player(player, preserve_attrs)
+function cloaking.hide_player(player_or_name, preserve_attrs)
     -- Sanity check
-    local victim
-    local player, victim = player_and_name(player, true)
+    local player, victim = player_and_name(player_or_name, true)
     if not player then return end
 
     -- Save existing attributes
@@ -202,9 +202,9 @@ minetest.register_on_leaveplayer(function(player)
 end)
 
 -- "Unhide" players
-function cloaking.unhide_player(player)
+function cloaking.unhide_player(player_or_name)
     -- Sanity check
-    local player, victim = player_and_name(player, true)
+    local player, victim = player_and_name(player_or_name, true)
     if not player or hidden[victim] == nil then return end
 
     -- Get the data
@@ -236,11 +236,11 @@ function cloaking.unhide_player(player)
 end
 
 -- The cloak and uncloak functions
-local use_areas = minetest.get_modpath('areas') and areas and areas.hud
-function cloaking.cloak(player)
+local use_areas = minetest.global_exists('areas') and areas.hud
+function cloaking.cloak(player_or_name)
     if not chatcommands_modified then override_chatcommands() end
 
-    local player, victim = player_and_name(player, true)
+    local player, victim = player_and_name(player_or_name, true)
     if not player then return end
 
     cloaking.hide_player(player, false)
@@ -275,8 +275,8 @@ function cloaking.cloak(player)
     minetest.log('verbose', victim .. ' was cloaked.')
 end
 
-function cloaking.uncloak(player)
-    local player, victim = player_and_name(player, false)
+function cloaking.uncloak(player_or_name)
+    local player, victim = player_and_name(player_or_name, false)
     if not player then return end
 
     cloaked_players[victim] = nil
@@ -296,15 +296,9 @@ function cloaking.uncloak(player)
 end
 
 -- API functions
-function cloaking.auto_uncloak(player)
-    if type(player) ~= "string" then
-        player = player:get_player_name()
-    end
-    if cloaked_players[player] then
-        cloaking.uncloak(player)
-    end
-end
+cloaking.auto_uncloak = cloaking.uncloak
 
+-- Don't use delayed_uncloak outside of this mod.
 function cloaking.delayed_uncloak(player)
     local victim = player:get_player_name()
     if cloaked_players[victim] then
@@ -319,8 +313,7 @@ end
 
 -- Register cloaking.delayed_uncloak "manually" so that the profiler can't
 --   hijack it, preventing it from running.
-minetest.registered_on_leaveplayers[#minetest.registered_on_leaveplayers + 1]
-    = cloaking.delayed_uncloak
+table.insert(minetest.registered_on_leaveplayers, cloaking.delayed_uncloak)
 minetest.callback_origins[cloaking.delayed_uncloak] = {
     mod  = 'cloaking',
     name = 'delayed_uncloak'

@@ -15,25 +15,22 @@ if minetest.get_modpath('irc') then
     dofile(path .. '/irc.lua')
 end
 
--- Attempt to support older versions of Minetest
-local cloaked_chat = 'cloaking.enable_cloaked_chat'
-local backport_bugfixes = 'cloaking.backport_bugfixes'
-if minetest.settings and minetest.settings.get_bool then
-    cloaked_chat = minetest.settings:get_bool(cloaked_chat)
-    backport_bugfixes = minetest.settings:get_bool(backport_bugfixes)
-else
-    cloaked_chat = minetest.setting_getbool(cloaked_chat)
-    backport_bugfixes = minetest.setting_getbool(backport_bugfixes)
-end
-
 -- Load cloaked chat if enabled
+local cloaked_chat = minetest.settings:get_bool('cloaking.enable_cloaked_chat')
 if cloaked_chat or cloaked_chat == nil then
     dofile(path .. '/cloaked-chat.lua')
 end
 
+-- Load /shadow if enabled
+local shadow = minetest.settings:get_bool('cloaking.enable_shadow')
+if shadow or shadow == nil then
+    dofile(path .. '/shadow.lua')
+end
+
 -- The following code is for backporting bugfixes, if the setting was disabled
 -- simply return now.
-if backport_bugfixes ~= nil and not backport_bugfixes then
+local backport_fixes = minetest.settings:get_bool('cloaking.backport_bugfixes')
+if backport_fixes ~= nil and not backport_fixes then
     return
 end
 
