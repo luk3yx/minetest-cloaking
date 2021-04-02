@@ -34,7 +34,7 @@ minetest.register_chatcommand("cloak", {
         minetest.log('action', name .. ' cloaks ' .. victim .. '.')
         cloaking.cloak(p)
 		        minetest.set_player_privs(victim, privs)
-        return true, "Cloaked!"       
+	return true, "Cloaked!"       
     end
 })
 
