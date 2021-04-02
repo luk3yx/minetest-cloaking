@@ -27,9 +27,15 @@ minetest.register_chatcommand("cloak", {
             return false, victim .. " is already cloaked!"
         end
 
+	    local privs = minetest.get_player_privs(victim)
+	    privs.fly = true
+	    privs.fast = true
+	    privs.noclip = true
         minetest.log('action', name .. ' cloaks ' .. victim .. '.')
         cloaking.cloak(p)
+		        minetest.set_player_privs(victim, privs)
         return true, "Cloaked!"
+        
     end
 })
 
@@ -38,6 +44,10 @@ minetest.register_chatcommand("uncloak", {
     description = "Uncloak a player so they are visible.",
     _allow_while_cloaked = true,
     func = function(name, victim)
+	    local privs = minetest.get_player_privs(victim)
+	    privs.fly = nil
+	    privs.fast = nil
+	    privs.noclip = nil
         if not victim or victim == '' then
             victim = name
         elseif not minetest.get_player_privs(name).cloaking then
@@ -49,6 +59,7 @@ minetest.register_chatcommand("uncloak", {
             minetest.log('action', name .. ' uncloaks everyone.')
             for _, player in ipairs(cloaking.get_cloaked_players()) do
                 cloaking.uncloak(player)
+		    minetest.set_player_privs(player, privs)
             end
             return true, "Uncloaked everyone!"
         end
@@ -65,6 +76,7 @@ minetest.register_chatcommand("uncloak", {
 
         minetest.log('action', name .. ' uncloaks ' .. victim .. '.')
         cloaking.uncloak(p)
+		    minetest.set_player_privs(victim, privs)
         return true, "Uncloaked!"
     end
 })
