@@ -89,6 +89,7 @@ end
 
 -- Don't allow chat or chatcommands in all commands that don't have the
 --   allow_while_cloaked parameter set.
+local delayed_uncloak
 local function override_chatcommands()
     local chatcommands = minetest.registered_chatcommands
     for cmd_name, def in pairs(chatcommands) do
@@ -120,7 +121,7 @@ local function override_chatcommands()
     for _, func in ipairs(minetest.registered_on_leaveplayers) do
         c = c + 1
         local f = func
-        if f ~= cloaking.delayed_uncloak then
+        if f ~= delayed_uncloak then
             minetest.registered_on_leaveplayers[c] = function(p, t, cloaked)
                 if cloaked ~= 'cloaking' and
                   cloaked_players[p:get_player_name()] then
@@ -264,7 +265,7 @@ function cloaking.cloak(player_or_name)
     end
 
     for _, f in ipairs(minetest.registered_on_leaveplayers) do
-        if f ~= cloaking.delayed_uncloak then
+        if f ~= delayed_uncloak then
             f(player, false, 'cloaking')
         end
     end
@@ -311,13 +312,15 @@ end
 -- API functions
 cloaking.auto_uncloak = cloaking.uncloak
 
--- Don't use delayed_uncloak outside of this mod.
-function cloaking.delayed_uncloak(player)
+-- This function removes the player from the cloaked players table on the next
+-- server step.
+-- Defined as a local above override_chatcommands().
+function delayed_uncloak(player)
     local victim = player:get_player_name()
     if cloaked_players[victim] then
-        minetest.after(0.5, function()
+        minetest.after(0, function()
             cloaked_players[victim] = nil
-            if areas and areas.hud and areas.hud[victim] then
+            if use_areas and areas.hud[victim] then
                 areas.hud[victim] = nil
             end
         end)
@@ -326,8 +329,8 @@ end
 
 -- Register cloaking.delayed_uncloak "manually" so that the profiler can't
 --   hijack it, preventing it from running.
-table.insert(minetest.registered_on_leaveplayers, cloaking.delayed_uncloak)
-minetest.callback_origins[cloaking.delayed_uncloak] = {
+table.insert(minetest.registered_on_leaveplayers, delayed_uncloak)
+minetest.callback_origins[delayed_uncloak] = {
     mod  = 'cloaking',
     name = 'delayed_uncloak'
 }
@@ -344,13 +347,18 @@ end
 -- There's currently no way to check if cloaked players will appear in the
 -- unmodified minetest.get_connected_players().
 function cloaking.get_connected_players()
-    local a = minetest.get_connected_players()
-    for player, cloaked in pairs(cloaked_players) do
+    local players = minetest.get_connected_players()
+    for name, cloaked in pairs(cloaked_players) do
         if cloaked then
-            table.insert(a, cloaking.get_player_by_name(player))
+            local player = cloaking.get_player_by_name(name)
+            -- The player may be nil if they have just left but haven't been
+            -- removed from the cloaked_players table yet.
+            if player then
+                players[#players + 1] = player
+            end
         end
     end
-    return a
+    return players
 end
 
 function cloaking.get_cloaked_players()
