@@ -59,16 +59,13 @@ function minetest.get_server_status(name, joined)
 
     local status = cloaking.get_server_status(name, joined)
     if not status or status == "" then return status end
-    local e = status:find('}', 1, true)
-    if not e then return status end
-    local motd = status:sub(e)
-    status = status:sub(1, status:find('{', 1, true))
-    local players = {}
-    for _, player in ipairs(minetest.get_connected_players()) do
-        table.insert(players, player:get_player_name())
-    end
-    players = table.concat(players, ', ')
-    status = status .. players .. motd
+    status = status:gsub('([,|] clients[:=][{ ])[^\n|}]*(}?)', function(p1, p2)
+        local players = {}
+        for _, player in ipairs(minetest.get_connected_players()) do
+            table.insert(players, player:get_player_name())
+        end
+        return p1 .. table.concat(players, ', ') .. p2
+    end, 1)
     return status
 end
 
