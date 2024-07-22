@@ -14,6 +14,8 @@ cloaking.get_objects_in_area        = minetest.get_objects_in_area
 cloaking.get_server_status          = minetest.get_server_status
 
 local cloaked_players = {}
+local cloaking_players = {}
+local uncloaking_players = {}
 local chatcommands_modified = false
 
 -- Override built-in functions
@@ -261,11 +263,13 @@ function cloaking.cloak(player_or_name)
         t = areas.hud[victim]
     end
 
+    cloaking_players[victim] = true
     for _, f in ipairs(minetest.registered_on_leaveplayers) do
         if f ~= delayed_uncloak then
             f(player, false, 'cloaking')
         end
     end
+    cloaking_players[victim] = nil
 
     cloaked_players[victim] = true
 
@@ -299,9 +303,11 @@ function cloaking.uncloak(player_or_name)
         minetest.chat_send_all("*** " .. victim .. " joined the game.")
     end
 
+    uncloaking_players[victim] = true
     for _, f in ipairs(minetest.registered_on_joinplayers) do
         f(player)
     end
+    uncloaking_players[victim] = nil
 
     minetest.log('verbose', victim .. ' was uncloaked.')
 end
@@ -380,6 +386,15 @@ end
 function cloaking.is_cloaked(player)
     if type(player) ~= "string" then player = player:get_player_name() end
     return cloaked_players[player] and true or false
+end
+
+function cloaking.is_cloaking(player)
+    if type(player) ~= "string" then player = player:get_player_name() end
+    return cloaking_players[player] and true or false
+end
+function cloaking.is_uncloaking(player)
+    if type(player) ~= "string" then player = player:get_player_name() end
+    return uncloaking_players[player] and true or false
 end
 
 -- Prevent cloaked players dying
